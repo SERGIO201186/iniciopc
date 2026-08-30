@@ -75,7 +75,11 @@
   /* ---------- content: two columns ---------- */
   .content{flex:1; min-height:0; display:block; padding-top:16px;}
   .col{min-height:0; height:100%; overflow-y:auto; display:flex; flex-direction:column; justify-content:flex-start;}
-  .top-link-row{display:grid; grid-template-columns:repeat(2, 200px); justify-content:flex-end; margin-bottom:11px;}
+  .top-link-row{display:grid; grid-template-columns:repeat(3, 200px); justify-content:flex-end; margin-bottom:11px;}
+  .top-link-row .card-sm input[type="url"]{flex:1; min-width:0; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.14); border-radius:6px; padding:4px 6px; color:var(--text-1); font-family:'JetBrains Mono',monospace; font-size:9px;}
+  .top-link-row .card-sm input[type="url"]:focus{outline:none; border-color:var(--blue);}
+  .top-link-row .card-sm button.ver-btn{cursor:pointer; background:none; border:none; color:var(--text-2); font-size:13px; padding:0 2px; flex-shrink:0;}
+  .top-link-row .card-sm button.ver-btn:hover{color:var(--text-1);}
   .col::-webkit-scrollbar{width:6px;}
   .col::-webkit-scrollbar-thumb{background:rgba(255,255,255,.12); border-radius:3px;}
 
@@ -242,14 +246,26 @@
       <div class="sec-head"><div class="sec-bar"></div><h2>Mis aplicaciones<span>— Funeraria Huerta y Omnia Technology</span></h2></div>
 
       <div class="grid top-link-row">
-        <a href="#" class="card card-sm pending" style="--accent:#9364f6" data-app="pagina-conmemorativa">
+        <div class="card card-sm" style="--accent:#9364f6">
           <div class="top-row">
             <div class="badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-4.5-9.5-9A5.5 5.5 0 0 1 12 6a5.5 5.5 0 0 1 9.5 6c-2.5 4.5-9.5 9-9.5 9z"/></svg></div>
             <span class="code">WEB</span>
           </div>
           <h3>Página conmemorativa</h3>
-          <p>Homenajes y condolencias en linea.</p>
-          <div class="foot-row"><span class="pill pending"><span class="pd"></span>CONFIGURAR</span><span class="ext">↗</span></div>
+          <div class="foot-row">
+            <input type="url" id="paginaConmemorativaUrl" placeholder="Pega la URL a probar…">
+            <button type="button" class="ver-btn" id="btnVerPaginaConmemorativa" title="Abrir">↗</button>
+          </div>
+        </div>
+
+        <a href="https://sergio201186.github.io/Web_legadointegral/" class="card card-sm jsopen" style="--accent:#34d399">
+          <div class="top-row">
+            <div class="badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5 12 3l9 6.5V21H3z"/><path d="M9 21v-7h6v7"/></svg></div>
+            <span class="code">WEB</span>
+          </div>
+          <h3>Página web (por nombrar)</h3>
+          <p>Sitio de la funeraria — nombre y URL definitivos pendientes.</p>
+          <div class="foot-row"><span class="pill ok"><span class="pd"></span>EN LINEA</span><span class="ext">↗</span></div>
         </a>
 
         <a href="https://www.omnia-technology.com" class="card card-sm jsopen" style="--accent:#3b82f6">
@@ -319,14 +335,14 @@
           <div class="foot-row"><span class="pill ok"><span class="pd"></span>EN LINEA</span><span class="ext">↗</span></div>
         </a>
 
-        <a href="https://www.omnia-technology.com/omnia-portal.html" class="card card-lg jsopen" style="--accent:#9364f6">
+        <a href="https://sergio201186.github.io/Paginas/" class="card card-lg jsopen" style="--accent:#9364f6">
           <div class="top-row">
-            <div class="badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="1.6"/><circle cx="12" cy="6" r="1.6"/><circle cx="18" cy="6" r="1.6"/><circle cx="6" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="18" cy="12" r="1.6"/><circle cx="6" cy="18" r="1.6"/><circle cx="12" cy="18" r="1.6"/><circle cx="18" cy="18" r="1.6"/></svg></div>
+            <div class="badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-4.5-9.5-9A5.5 5.5 0 0 1 12 6a5.5 5.5 0 0 1 9.5 6c-2.5 4.5-9.5 9-9.5 9z"/></svg></div>
             <span class="code">MOD.06</span>
           </div>
-          <h3>+ Todas mis apps</h3>
-          <p>Portal Omnia: Funeral 360, FarmaPOS, NovaPOS...</p>
-          <div class="foot-row"><span class="pill ok"><span class="pd"></span>PORTAL</span><span class="ext">↗</span></div>
+          <h3>Páginas conmemorativas</h3>
+          <p>Panel de control para crear y administrar las páginas de Huerta.</p>
+          <div class="foot-row"><span class="pill ok"><span class="pd"></span>EN LINEA</span><span class="ext">↗</span></div>
         </a>
       </div>
 
@@ -557,6 +573,25 @@
     e.preventDefault();
     openLocal(getSilhouettePath(), 'Silhouette Studio');
   });
+
+  // ---------- página conmemorativa: cambia de folio en folio, se pega la URL cada vez ----------
+  // No es un enlace fijo como el resto: cada finado tiene su propia página
+  // (creada desde "Páginas conmemorativas"), así que aquí solo se pega su
+  // URL para verla/probarla antes de compartirla. Se recuerda la última que
+  // se usó (en este dispositivo) para no tener que volver a pegarla si es
+  // la misma.
+  const paginaConmemorativaInput = document.getElementById('paginaConmemorativaUrl');
+  paginaConmemorativaInput.value = localStorage.getItem('omnia_pagina_conmemorativa_url') || '';
+  function abrirPaginaConmemorativa(){
+    let url = paginaConmemorativaInput.value.trim();
+    if (!url) { alert('Pega primero la URL de la página conmemorativa.'); paginaConmemorativaInput.focus(); return; }
+    if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
+    localStorage.setItem('omnia_pagina_conmemorativa_url', url);
+    registrarMovimiento('abrir_pagina_conmemorativa', url);
+    window.open(url, '_blank', 'noopener,location=no,toolbar=no,menubar=no,status=no,directories=no,width=1100,height=800,resizable=yes,scrollbars=yes');
+  }
+  document.getElementById('btnVerPaginaConmemorativa').addEventListener('click', abrirPaginaConmemorativa);
+  paginaConmemorativaInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') abrirPaginaConmemorativa(); });
 
   // ---------- notificaciones ODS: misma lógica que calcularPendientes() del script compartido ----------
   // (equipos sin recoger, saldo pendiente, solicitudes sin autorizar, abonos
