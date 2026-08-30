@@ -565,9 +565,14 @@
       fetchAccion('obtenerAbonos', {})
     ]);
     const hoy = new Date(); hoy.setHours(0, 0, 0, 0);
-    const ordenes = ((odsRes && odsRes.ok ? odsRes.datos : []) || []).filter(o => o.estatus !== 'CERRADA');
+    const todasLasOrdenes = (odsRes && odsRes.ok ? odsRes.datos : []) || [];
+    const ordenes = todasLasOrdenes.filter(o => o.estatus !== 'CERRADA');
 
-    const equipos = ordenes
+    // El equipo de velación (biombo, base, cristo, candelabro…) se recoge
+    // como un trámite aparte, después de que la orden ya se dio por
+    // cerrada — así que "equipo sin recoger" se revisa sobre TODAS las
+    // órdenes (incluidas las cerradas), no solo las abiertas.
+    const equipos = todasLasOrdenes
       .filter(o => o.modalidadVelacion === 'DOMICILIO' && o.estatusEquipo === 'ACTIVO')
       .map(o => {
         let dias = null;
