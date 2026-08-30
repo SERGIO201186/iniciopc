@@ -181,6 +181,22 @@
   .lock-config-link{background:none; border:none; color:var(--text-3); font-family:'JetBrains Mono',monospace; font-size:9.5px; letter-spacing:1px; cursor:pointer; margin-top:10px; opacity:.5;}
   .lock-config-link:hover{opacity:1;}
   #sessionChip{display:none; align-items:center; gap:6px; font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--text-2); background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.12); padding:6px 12px; border-radius:8px;}
+
+  /* ===== modal de notificaciones ===== */
+  .modal-overlay{position:fixed; inset:0; z-index:10000; display:none; align-items:center; justify-content:center; background:rgba(5,7,20,.72); padding:20px;}
+  .modal-overlay.active{display:flex;}
+  .modal-box{background:#12142c; border:1px solid rgba(255,255,255,.12); border-radius:14px; max-width:540px; width:100%; max-height:82vh; display:flex; flex-direction:column; box-shadow:0 20px 60px -20px rgba(0,0,0,.6);}
+  .modal-head{display:flex; align-items:center; justify-content:space-between; padding:16px 18px; border-bottom:1px solid rgba(255,255,255,.08);}
+  .modal-head h3{font-family:'Outfit',sans-serif; font-size:16px; color:var(--text-1); font-weight:700;}
+  .modal-close{background:none; border:none; color:var(--text-3); font-size:16px; cursor:pointer; line-height:1; padding:4px;}
+  .modal-close:hover{color:var(--text-1);}
+  .modal-body{padding:14px 18px 18px; overflow-y:auto; font-family:'Poppins',sans-serif; font-size:13px; color:var(--text-2);}
+  .modal-loading, .notif-empty{color:var(--text-3); font-size:12px; font-family:'JetBrains Mono',monospace;}
+  .notif-group{margin-bottom:16px;}
+  .notif-group h4{font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:1px; color:var(--text-1); margin-bottom:8px; text-transform:uppercase;}
+  .notif-row{display:flex; justify-content:space-between; gap:10px; padding:6px 0; border-bottom:1px solid rgba(255,255,255,.06); font-size:12.5px;}
+  .notif-row b{color:var(--text-1); font-weight:600;}
+  .notif-row span.warn{color:#f87171;}
 </style>
 </head>
 <body>
@@ -247,6 +263,16 @@
           <p>Servicios inmediatos, folio y traslado.</p>
           <div class="foot-row"><span class="pill pending"><span class="pd"></span>CONFIGURAR</span><span class="ext">↗</span></div>
         </a>
+
+        <a href="#" class="card" style="--accent:#fbbf24" id="notifCard">
+          <div class="top-row">
+            <div class="badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 4 1.5 6 2 7H4c.5-1 2-3 2-7z"/><path d="M9.5 18a2.5 2.5 0 0 0 5 0"/></svg></div>
+            <span class="code" id="notifBadge">···</span>
+          </div>
+          <h3>Notificaciones ODS</h3>
+          <p>Equipos, saldos, solicitudes, abonos y horarios pendientes.</p>
+          <div class="foot-row"><span class="pill ok"><span class="pd"></span>EN VIVO</span><span class="ext">↗</span></div>
+        </a>
       </div>
 
       <div class="subgroup-label">Omnia Technology · panel y portal</div>
@@ -283,6 +309,32 @@
         </a>
       </div>
       <div class="note">⚠ "CONFIGURAR" = falta la URL real de esa app — edita el href en el HTML o pasamela.</div>
+
+      <div class="subgroup-label">Herramientas de descargas · solo en esta PC</div>
+      <div class="grid grid-3">
+
+        <a href="#" class="card" style="--accent:#34d399" id="cardDocDescargados">
+          <div class="top-row">
+            <div class="badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/></svg></div>
+            <span class="code">LOCAL</span>
+          </div>
+          <h3>Doc. descargados</h3>
+          <p>Abre la carpeta de descargas de esta PC.</p>
+          <div class="foot-row"><span class="pill ok"><span class="pd"></span>CARPETA</span><span class="ext">↗</span></div>
+        </a>
+
+        <a href="#" class="card" style="--accent:#60a5fa" id="cardSilhouette">
+          <div class="top-row">
+            <div class="badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18M4 12h16"/><circle cx="12" cy="12" r="9"/></svg></div>
+            <span class="code">LOCAL</span>
+          </div>
+          <h3>Silhouette Studio</h3>
+          <p>Abre el programa ya instalado en esta PC.</p>
+          <div class="foot-row"><span class="pill ok"><span class="pd"></span>APP</span><span class="ext">↗</span></div>
+        </a>
+
+      </div>
+      <div class="note">🔒 Estos accesos abren solo esa carpeta/programa en esta PC — no se puede navegar a otras paginas desde ahi.</div>
     </div>
 
     <!-- ================= TRAMITES OFICIALES ================= -->
@@ -365,6 +417,16 @@
   <button type="button" id="configBtn" class="lock-config-link">⚙ Configurar conexión</button>
 </div>
 
+<div id="notifModal" class="modal-overlay">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h3>Pendientes de ODS</h3>
+      <button type="button" id="notifCloseBtn" class="modal-close">✕</button>
+    </div>
+    <div id="notifBody" class="modal-body"><p class="modal-loading">Cargando…</p></div>
+  </div>
+</div>
+
 <script>
   // ===================================================================
   // Base de datos de empleados: la MISMA hoja "Colaboradores" y el MISMO
@@ -426,7 +488,10 @@
     const h = Math.round(sh * POPUP_HEIGHT_RATIO);
     const left = Math.round((sw - w) / 2);
     const top = Math.round((sh - h) / 2);
-    window.open(url, '_blank', `noopener,width=${w},height=${h},left=${left},top=${top},resizable=yes,scrollbars=yes`);
+    // location=no/toolbar=no/menubar=no quitan la barra de direcciones de la
+    // ventana emergente — así nadie puede escribir otra URL y navegar a otro
+    // sitio desde ahí (el objetivo es restringir esta PC a solo estas apps).
+    window.open(url, '_blank', `noopener,location=no,toolbar=no,menubar=no,status=no,directories=no,width=${w},height=${h},left=${left},top=${top},resizable=yes,scrollbars=yes`);
     return false;
   }
   document.querySelectorAll('a.jsopen').forEach(a => {
@@ -436,6 +501,118 @@
   document.querySelectorAll('.card[data-app]').forEach(a => {
     a.addEventListener('click', () => registrarMovimiento('abrir_modulo', a.dataset.app));
   });
+
+  // ---------- herramientas locales (solo esta PC): carpeta de descargas y Silhouette Studio ----------
+  // No hay forma de que una página web abra una carpeta de Windows o lance un
+  // programa instalado de forma 100% garantizada (por seguridad, los
+  // navegadores restringen file://) — esto es lo mejor que se puede hacer
+  // desde el propio panel: un enlace file:// a la carpeta/ejecutable, en una
+  // ventana sin barra de direcciones (igual que las de arriba). Si el
+  // navegador bloquea abrir el .exe directamente, hay que crear un acceso
+  // directo (.lnk) a Silhouette Studio y apuntar aquí a esa ruta en su lugar.
+  function getDocFolder(){ return localStorage.getItem('omnia_doc_folder') || "C:/Users/funer/Downloads/descargasomnia"; }
+  function getSilhouettePath(){ return localStorage.getItem('omnia_silhouette_path') || ""; }
+  function openLocal(path, label){
+    if (!path) { alert('Falta configurar la ruta de "' + label + '". Usa "⚙ Configurar conexión".'); return; }
+    registrarMovimiento('abrir_herramienta_local', label);
+    const url = 'file:///' + path.replace(/\\/g, '/').replace(/^\/+/, '');
+    window.open(url, '_blank', 'noopener,location=no,toolbar=no,menubar=no,status=no,directories=no,width=1100,height=720,resizable=yes,scrollbars=yes');
+  }
+  document.getElementById('cardDocDescargados').addEventListener('click', (e) => {
+    e.preventDefault();
+    openLocal(getDocFolder(), 'Doc. descargados');
+  });
+  document.getElementById('cardSilhouette').addEventListener('click', (e) => {
+    e.preventDefault();
+    openLocal(getSilhouettePath(), 'Silhouette Studio');
+  });
+
+  // ---------- notificaciones ODS: misma lógica que calcularPendientes() del script compartido ----------
+  // (equipos sin recoger, saldo pendiente, solicitudes sin autorizar, abonos
+  // sin confirmar y horarios próximos) — se lee del MISMO Apps Script de
+  // empleados, con las mismas acciones publicas que ya usan Previsión/ODS
+  // (obtenerODS/obtenerSolicitudes/obtenerAbonos), sin exponer credenciales.
+  const notifModal = document.getElementById('notifModal');
+  const notifBody = document.getElementById('notifBody');
+  const notifBadge = document.getElementById('notifBadge');
+  const notifCard = document.getElementById('notifCard');
+  const notifCloseBtn = document.getElementById('notifCloseBtn');
+
+  async function fetchAccion(accion, extra){
+    const res = await fetch(getEmpApiUrl(), {
+      method: 'POST',
+      body: JSON.stringify(Object.assign({ accion: accion }, extra || {}))
+    });
+    return res.json();
+  }
+  function fmtMx(n){ return '$' + Math.round(+n || 0).toLocaleString('es-MX'); }
+
+  async function calcularPendientesODS(){
+    const [odsRes, solRes, abonoRes] = await Promise.all([
+      fetchAccion('obtenerODS', { filtros: {} }),
+      fetchAccion('obtenerSolicitudes', { filtros: {} }),
+      fetchAccion('obtenerAbonos', {})
+    ]);
+    const hoy = new Date(); hoy.setHours(0, 0, 0, 0);
+    const ordenes = ((odsRes && odsRes.ok ? odsRes.datos : []) || []).filter(o => o.estatus !== 'CERRADA');
+
+    const equipos = ordenes
+      .filter(o => o.modalidadVelacion === 'DOMICILIO' && o.estatusEquipo === 'ACTIVO')
+      .map(o => {
+        let dias = null;
+        if (o.fechaRecoleccion) { const r = new Date(o.fechaRecoleccion); r.setHours(0, 0, 0, 0); dias = Math.ceil((r - hoy) / 86400000); }
+        return { folio: o.folio, fallecido: o.fallecido, dias: dias };
+      })
+      .sort((a, b) => (a.dias === null ? 999 : a.dias) - (b.dias === null ? 999 : b.dias));
+
+    const pagos = ordenes
+      .filter(o => (+o.restante || 0) > 0)
+      .map(o => ({ folio: o.folio, contratante: o.contratante, restante: +o.restante || 0 }))
+      .sort((a, b) => b.restante - a.restante);
+
+    const solicitudes = ((solRes && solRes.ok ? solRes.datos : []) || []).filter(s => s.estado === 'pendiente');
+    const abonos = ((abonoRes && abonoRes.ok ? abonoRes.datos : []) || []).filter(a => a.estado === 'pendiente');
+
+    const horarios = ordenes
+      .map(o => ({
+        folio: o.folio, fallecido: o.fallecido,
+        fecha: o.fechaSepelio || o.fechaCeremonia || o.fechaCremacion || '',
+        hora: o.horaSepelio || o.horaCeremonia || o.horaCremacion || ''
+      }))
+      .filter(h => h.fecha)
+      .sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
+
+    return { equipos, pagos, solicitudes, abonos, horarios, activas: ordenes.length };
+  }
+
+  function notifRow(a, b, c){ return `<div class="notif-row"><span><b>${a}</b> — ${b}</span><span>${c}</span></div>`; }
+  function notifGroup(titulo, filas, vacio){
+    if (!filas.length) return `<div class="notif-group"><h4>${titulo}</h4><p class="notif-empty">${vacio}</p></div>`;
+    return `<div class="notif-group"><h4>${titulo} (${filas.length})</h4>${filas.join('')}</div>`;
+  }
+
+  async function refreshNotificaciones(openAfter){
+    if (openAfter) { notifBody.innerHTML = '<p class="modal-loading">Cargando…</p>'; notifModal.classList.add('active'); }
+    try {
+      const p = await calcularPendientesODS();
+      notifBadge.textContent = p.equipos.length + p.pagos.length + p.solicitudes.length + p.abonos.length;
+      if (!openAfter) return;
+      let html = '';
+      html += notifGroup('📦 Equipos de velación sin recoger', p.equipos.map(e => notifRow(e.folio, e.fallecido || '—', e.dias === null ? 'sin fecha' : e.dias < 0 ? `<span class="warn">vencido ${-e.dias}d</span>` : e.dias === 0 ? 'hoy' : `en ${e.dias}d`)), 'Sin pendientes.');
+      html += notifGroup('💰 Órdenes con saldo pendiente', p.pagos.map(x => notifRow(x.folio, x.contratante || '—', fmtMx(x.restante))), 'Sin pendientes.');
+      html += notifGroup('✏️ Solicitudes de edición sin autorizar', p.solicitudes.map(s => notifRow(s.folio, s.empleadoNombre || '—', s.motivo || '—')), 'Sin pendientes.');
+      html += notifGroup('🧾 Abonos sin confirmar', p.abonos.map(a => notifRow(a.folio, a.cajero || '—', fmtMx(a.monto))), 'Sin pendientes.');
+      html += notifGroup('🕒 Horarios próximos (sepelio/cremación)', p.horarios.slice(0, 8).map(h => notifRow(h.folio, h.fallecido || '—', (h.fecha || '') + ' ' + (h.hora || ''))), 'Sin horarios programados.');
+      html += `<div class="notif-group"><h4>📋 Órdenes ODS activas</h4><p class="notif-empty">${p.activas} orden(es) sin cerrar.</p></div>`;
+      notifBody.innerHTML = html;
+    } catch (err) {
+      notifBadge.textContent = '!';
+      if (openAfter) notifBody.innerHTML = '<p class="modal-loading">Sin conexión con el servidor de empleados.</p>';
+    }
+  }
+  notifCard.addEventListener('click', (e) => { e.preventDefault(); refreshNotificaciones(true); });
+  notifCloseBtn.addEventListener('click', () => notifModal.classList.remove('active'));
+  notifModal.addEventListener('click', (e) => { if (e.target === notifModal) notifModal.classList.remove('active'); });
 
   // ---------- login / lock screen ----------
   const overlay = document.getElementById('lockOverlay');
@@ -487,6 +664,7 @@
         setSession(data.colaborador);
         unlockPanel(data.colaborador);
         registrarMovimiento('ingreso', 'Acceso con PIN');
+        refreshNotificaciones(false);
       } else {
         errEl.textContent = (data && data.mensaje) || 'PIN incorrecto';
         dotsEl.classList.add('shake', 'error');
@@ -531,6 +709,7 @@
         setSession(data.colaborador);
         unlockPanel(data.colaborador);
         registrarMovimiento('ingreso', 'Acceso con usuario y contraseña');
+        refreshNotificaciones(false);
         userPassForm.reset();
       } else {
         errEl.textContent = (data && data.mensaje) || 'Usuario o contraseña incorrectos';
@@ -552,6 +731,10 @@
     if (empUrl !== null) localStorage.setItem('omnia_emp_api_url', empUrl.trim());
     const logUrl = prompt('URL del Apps Script de MOVIMIENTOS (propio de este panel, ver Codigo.gs):', getLogApiUrl());
     if (logUrl !== null) localStorage.setItem('omnia_log_api_url', logUrl.trim());
+    const docFolder = prompt('Ruta de la carpeta de "Doc. descargados" en esta PC:', getDocFolder());
+    if (docFolder !== null) localStorage.setItem('omnia_doc_folder', docFolder.trim());
+    const silhouettePath = prompt('Ruta del .exe de Silhouette Studio en esta PC (ej. C:\\Program Files\\Silhouette America\\Silhouette Studio\\Silhouette Studio.exe):', getSilhouettePath());
+    if (silhouettePath !== null) localStorage.setItem('omnia_silhouette_path', silhouettePath.trim());
     alert('Conexión guardada en este dispositivo.');
   });
 
@@ -573,7 +756,7 @@
 
   // ---------- estado inicial: exige inicio de sesión real en cada apertura del panel ----------
   const existingSession = getSession();
-  if (existingSession) { unlockPanel(existingSession); } else { lockPanel(); }
+  if (existingSession) { unlockPanel(existingSession); refreshNotificaciones(false); } else { lockPanel(); }
 
   window.addEventListener('beforeunload', (e) => { e.preventDefault(); e.returnValue = ''; });
 
