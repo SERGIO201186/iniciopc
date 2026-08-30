@@ -115,6 +115,18 @@
   .card:hover .ext{color:var(--text-1);}
   .card h3{font-family:'Outfit',sans-serif; font-weight:700; font-size:13.5px; margin-top:9px; line-height:1.2;}
   .card p{color:var(--text-2); font-size:10.5px; margin-top:3px; line-height:1.4; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;}
+  /* tarjetas grandes (apps principales, arriba) vs. pequeñas (herramientas de descarga, abajo) */
+  .card-lg{padding:18px;}
+  .card-lg .badge{width:46px; height:46px; border-radius:12px;}
+  .card-lg .badge svg{width:24px; height:24px;}
+  .card-lg h3{font-size:16.5px; margin-top:12px;}
+  .card-lg p{font-size:11.5px; margin-top:5px;}
+  .card-sm{padding:9px;}
+  .card-sm .badge{width:26px; height:26px; border-radius:8px;}
+  .card-sm .badge svg{width:14px; height:14px;}
+  .card-sm h3{font-size:11.5px; margin-top:6px;}
+  .card-sm p{font-size:9.5px; margin-top:2px; -webkit-line-clamp:1;}
+  .card-sm .foot-row{margin-top:6px;}
   .foot-row{display:flex; align-items:center; justify-content:space-between; margin-top:9px;}
   .pill{display:inline-flex; align-items:center; gap:5px; font-family:'JetBrains Mono',monospace; font-size:8.5px;
     font-weight:600; letter-spacing:.3px; padding:3px 8px; border-radius:20px;
@@ -234,7 +246,7 @@
       </div>
       <div class="grid grid-3">
 
-        <a href="https://sergio201186.github.io/Prevision-app/" class="card pending" style="--accent:#3b82f6" data-app="previsiones">
+        <a href="https://sergio201186.github.io/Prevision-app/" class="card card-lg pending" style="--accent:#3b82f6" data-app="previsiones">
           <div class="top-row">
             <div class="badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6l7-3z"/><path d="M9 12l2 2 4-4"/></svg></div>
             <span class="code">MOD.01</span>
@@ -244,7 +256,7 @@
           <div class="foot-row"><span class="pill pending"><span class="pd"></span>CONFIGURAR</span><span class="ext">↗</span></div>
         </a>
 
-        <a href="#" class="card pending" style="--accent:#9364f6" data-app="verificador">
+        <a href="#" class="card card-lg pending" style="--accent:#9364f6" data-app="verificador">
           <div class="top-row">
             <div class="badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="10" r="6"/><path d="M14.5 14.5L20 20"/><path d="M7.5 10l1.7 1.7L13 8"/></svg></div>
             <span class="code">MOD.02</span>
@@ -254,7 +266,7 @@
           <div class="foot-row"><span class="pill pending"><span class="pd"></span>CONFIGURAR</span><span class="ext">↗</span></div>
         </a>
 
-        <a href="#" class="card pending" style="--accent:#3b82f6" data-app="ods">
+        <a href="#" class="card card-lg pending" style="--accent:#3b82f6" data-app="ods">
           <div class="top-row">
             <div class="badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="12" height="17" rx="2"/><rect x="9" y="2.5" width="6" height="3" rx="1"/><path d="M9 12h6M9 15.5h6M9 8.5h3"/></svg></div>
             <span class="code">MOD.03</span>
@@ -264,7 +276,7 @@
           <div class="foot-row"><span class="pill pending"><span class="pd"></span>CONFIGURAR</span><span class="ext">↗</span></div>
         </a>
 
-        <a href="#" class="card" style="--accent:#fbbf24" id="notifCard">
+        <a href="#" class="card card-lg" style="--accent:#fbbf24" id="notifCard">
           <div class="top-row">
             <div class="badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 4 1.5 6 2 7H4c.5-1 2-3 2-7z"/><path d="M9.5 18a2.5 2.5 0 0 0 5 0"/></svg></div>
             <span class="code" id="notifBadge">···</span>
@@ -278,7 +290,7 @@
       <div class="subgroup-label">Omnia Technology · panel y portal</div>
       <div class="grid grid-3">
 
-        <a href="#" class="card pending" style="--accent:#9364f6" data-app="omnia-control">
+        <a href="#" class="card card-lg pending" style="--accent:#9364f6" data-app="omnia-control">
           <div class="top-row">
             <div class="badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="8" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/><rect x="13" y="13" width="8" height="8" rx="1.5"/></svg></div>
             <span class="code">MOD.04</span>
@@ -288,7 +300,7 @@
           <div class="foot-row"><span class="pill pending"><span class="pd"></span>CONFIGURAR</span><span class="ext">↗</span></div>
         </a>
 
-        <a href="https://www.omnia-technology.com" class="card jsopen" style="--accent:#3b82f6">
+        <a href="https://www.omnia-technology.com" class="card card-lg jsopen" style="--accent:#3b82f6">
           <div class="top-row">
             <div class="badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="4" ry="9"/><path d="M3 12h18"/></svg></div>
             <span class="code">MOD.05</span>
@@ -298,7 +310,7 @@
           <div class="foot-row"><span class="pill ok"><span class="pd"></span>EN LINEA</span><span class="ext">↗</span></div>
         </a>
 
-        <a href="https://www.omnia-technology.com/omnia-portal.html" class="card jsopen" style="--accent:#9364f6">
+        <a href="https://www.omnia-technology.com/omnia-portal.html" class="card card-lg jsopen" style="--accent:#9364f6">
           <div class="top-row">
             <div class="badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="1.6"/><circle cx="12" cy="6" r="1.6"/><circle cx="18" cy="6" r="1.6"/><circle cx="6" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="18" cy="12" r="1.6"/><circle cx="6" cy="18" r="1.6"/><circle cx="12" cy="18" r="1.6"/><circle cx="18" cy="18" r="1.6"/></svg></div>
             <span class="code">MOD.06</span>
@@ -313,7 +325,7 @@
       <div class="subgroup-label">Herramientas de descargas · solo en esta PC</div>
       <div class="grid grid-3">
 
-        <a href="#" class="card" style="--accent:#34d399" id="cardDocDescargados">
+        <a href="#" class="card card-sm" style="--accent:#34d399" id="cardDocDescargados">
           <div class="top-row">
             <div class="badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/></svg></div>
             <span class="code">LOCAL</span>
@@ -323,7 +335,7 @@
           <div class="foot-row"><span class="pill ok"><span class="pd"></span>CARPETA</span><span class="ext">↗</span></div>
         </a>
 
-        <a href="#" class="card" style="--accent:#60a5fa" id="cardSilhouette">
+        <a href="#" class="card card-sm" style="--accent:#60a5fa" id="cardSilhouette">
           <div class="top-row">
             <div class="badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18M4 12h16"/><circle cx="12" cy="12" r="9"/></svg></div>
             <span class="code">LOCAL</span>
@@ -343,7 +355,7 @@
 
       <div class="grid grid-2">
 
-        <a href="https://www.gob.mx/curp/" class="card jsopen" style="--accent:#3b82f6">
+        <a href="https://www.gob.mx/curp/" class="card card-sm jsopen" style="--accent:#3b82f6">
           <div class="top-row">
             <div class="badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="5" width="19" height="14" rx="2"/><circle cx="8.5" cy="12" r="2.3"/><path d="M14 10h5M14 14h3"/></svg></div>
             <span class="official">✓ gob.mx</span>
@@ -353,7 +365,7 @@
           <div class="foot-row"><span class="pill ok"><span class="pd"></span>GRATUITO</span><span class="ext">↗</span></div>
         </a>
 
-        <a href="https://www.miregistrocivil.gob.mx/protected/actas/nacimiento/BusquedaActaNacimiento.xhtml?faces-redirect=true" class="card jsopen" style="--accent:#9364f6">
+        <a href="https://www.miregistrocivil.gob.mx/protected/actas/nacimiento/BusquedaActaNacimiento.xhtml?faces-redirect=true" class="card card-sm jsopen" style="--accent:#9364f6">
           <div class="top-row">
             <div class="badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3h7l4 4v14H7z"/><path d="M14 3v4h4"/><path d="M9.5 12.5h5M9.5 15.5h5M9.5 9.5h2.5"/></svg></div>
             <span class="official">✓ miregistrocivil.gob.mx</span>
@@ -363,7 +375,7 @@
           <div class="foot-row"><span class="pill ok"><span class="pd"></span>CON COSTO</span><span class="ext">↗</span></div>
         </a>
 
-        <a href="https://www.imss.gob.mx/constancia-no-derechohabiencia" class="card jsopen" style="--accent:#3b82f6">
+        <a href="https://www.imss.gob.mx/constancia-no-derechohabiencia" class="card card-sm jsopen" style="--accent:#3b82f6">
           <div class="top-row">
             <div class="badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6l7-3z"/><path d="M5.5 5l13 14"/></svg></div>
             <span class="official">✓ imss.gob.mx</span>
@@ -373,7 +385,7 @@
           <div class="foot-row"><span class="pill ok"><span class="pd"></span>GRATUITO</span><span class="ext">↗</span></div>
         </a>
 
-        <a href="https://oficinavirtual.issste.gob.mx/Servicios/Acreditaci%C3%B3n-de-no-Afiliaci%C3%B3n" class="card jsopen" style="--accent:#9364f6">
+        <a href="https://oficinavirtual.issste.gob.mx/Servicios/Acreditaci%C3%B3n-de-no-Afiliaci%C3%B3n" class="card card-sm jsopen" style="--accent:#9364f6">
           <div class="top-row">
             <div class="badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6l7-3z"/><path d="M5.5 5l13 14"/></svg></div>
             <span class="official">✓ issste.gob.mx</span>
