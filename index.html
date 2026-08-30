@@ -304,8 +304,8 @@
             <div class="badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 4 1.5 6 2 7H4c.5-1 2-3 2-7z"/><path d="M9.5 18a2.5 2.5 0 0 0 5 0"/></svg></div>
             <span class="code" id="notifBadge">···</span>
           </div>
-          <h3>Notificaciones ODS</h3>
-          <p>Equipos, saldos, solicitudes, abonos y horarios pendientes.</p>
+          <h3>Notificaciones</h3>
+          <p>Pendientes de ODS y Previsión: equipos, saldos, atrasos y horarios.</p>
           <div class="foot-row"><span class="pill ok"><span class="pd"></span>EN VIVO</span><span class="ext">↗</span></div>
         </a>
 
@@ -431,7 +431,7 @@
 <div id="notifModal" class="modal-overlay">
   <div class="modal-box">
     <div class="modal-head">
-      <h3>Pendientes de ODS</h3>
+      <h3>Pendientes de ODS y Previsión</h3>
       <button type="button" id="notifCloseBtn" class="modal-close">✕</button>
     </div>
     <div id="notifBody" class="modal-body"><p class="modal-loading">Cargando…</p></div>
@@ -463,6 +463,16 @@
   function getSession(){ try { return JSON.parse(sessionStorage.getItem('omnia_colaborador') || 'null'); } catch(e){ return null; } }
   function setSession(colaborador){ sessionStorage.setItem('omnia_colaborador', JSON.stringify(colaborador)); }
   function clearSession(){ sessionStorage.removeItem('omnia_colaborador'); }
+
+  // Credencial (PIN o usuario+contraseña) que el propio colaborador acaba de
+  // escribir para entrar: se guarda SOLO mientras dura la sesión de esta
+  // pestaña (nunca en localStorage) para poder pedir, con esa misma
+  // credencial, los datos de Previsión (contratos/abonos) que el script
+  // compartido exige autenticados — igual que ya hace la propia app de
+  // Previsión. Se borra al bloquear/cerrar sesión.
+  function getAuthCred(){ try { return JSON.parse(sessionStorage.getItem('omnia_auth_cred') || 'null'); } catch(e){ return null; } }
+  function setAuthCred(cred){ sessionStorage.setItem('omnia_auth_cred', JSON.stringify(cred)); }
+  function clearAuthCred(){ sessionStorage.removeItem('omnia_auth_cred'); }
 
   // ---------- movimientos: van a la base de datos PROPIA de este panel, nunca a la de empleados ----------
   function registrarMovimiento(accion, detalle){
@@ -601,6 +611,57 @@
     return { equipos, pagos, solicitudes, abonos, horarios, activas: ordenes.length };
   }
 
+  // Contratos de Previsión atrasados y pagos de Mercado Pago sin confirmar.
+  // A diferencia de ODS, el script compartido solo entrega estos datos
+  // autenticado (misma vía que usa la propia app de Previsión para
+  // sincronizar), por eso se manda la credencial con la que el colaborador
+  // ya inició sesión aquí. "Atrasado" se calcula EXACTAMENTE igual que en
+  // la app de Previsión (getContractStatus): más de 30 días sin abonar si
+  // el contrato es quincenal, 60 si no, contando desde el último abono (o
+  // desde el registro si nunca ha abonado) — salvo que el estatus manual
+  // sea Cancelado/Suspendido/Servicio Brindado, o ya esté liquidado.
+  async function calcularPendientesPrevision(){
+    const cred = getAuthCred();
+    if (!cred) return { atrasados: [], pagosMP: [] };
+    const res = await fetch(getEmpApiUrl() + '?v=' + Date.now() + '&auth=' + encodeURIComponent(JSON.stringify(cred)));
+    const data = await res.json();
+    if (!data || data.result !== 'success') return { atrasados: [], pagosMP: [] };
+
+    const contratos = data.contracts || [];
+    const abonos = data.payments || [];
+    const pagosMPTodos = data.pagosMP || [];
+
+    function estadoContrato(c){
+      if (c.ESTADO_MANUAL === 'Cancelado') return 'cancelado';
+      if (c.ESTADO_MANUAL === 'Suspendido') return 'suspendido';
+      if (c.ESTADO_MANUAL === 'Servicio Brindado') return 'servicioBrindado';
+      const pagado = Number(c.PAGADO_A_LA_FECHA) || 0;
+      const total = Number(c.PRECIO_TOTAL) || 0;
+      if (pagado >= total && total > 0) return 'liquidado';
+      const propios = abonos.filter(p => String(p.FOLIO_CLIENTE) === String(c.FOLIO));
+      let fechaUltimo;
+      if (propios.length) {
+        fechaUltimo = new Date(propios.slice().sort((a, b) => new Date(b.FECHA) - new Date(a.FECHA))[0].FECHA);
+      } else {
+        fechaUltimo = new Date(c.REGISTRO);
+      }
+      const dias = Math.floor((Date.now() - fechaUltimo.getTime()) / 86400000);
+      const limite = String(c.FRECUENCIA || '').toLowerCase() === 'quincenal' ? 30 : 60;
+      return dias > limite ? 'atrasado' : 'vigente';
+    }
+
+    const atrasados = contratos
+      .filter(c => c.FOLIO && estadoContrato(c) === 'atrasado')
+      .map(c => ({ folio: c.FOLIO, titular: c.TITULAR, restante: (Number(c.PRECIO_TOTAL) || 0) - (Number(c.PAGADO_A_LA_FECHA) || 0) }))
+      .sort((a, b) => b.restante - a.restante);
+
+    const pagosMP = pagosMPTodos
+      .filter(p => p.ESTADO === 'pendiente_revision')
+      .map(p => ({ folio: p.FOLIO, monto: Number(p.MONTO) || 0 }));
+
+    return { atrasados, pagosMP };
+  }
+
   function notifRow(a, b, c){ return `<div class="notif-row"><span><b>${a}</b> — ${b}</span><span>${c}</span></div>`; }
   function notifGroup(titulo, filas, vacio){
     if (!filas.length) return `<div class="notif-group"><h4>${titulo}</h4><p class="notif-empty">${vacio}</p></div>`;
@@ -611,13 +672,21 @@
     if (openAfter) { notifBody.innerHTML = '<p class="modal-loading">Cargando…</p>'; notifModal.classList.add('active'); }
     try {
       const p = await calcularPendientesODS();
-      notifBadge.textContent = p.equipos.length + p.pagos.length + p.solicitudes.length + p.abonos.length;
+      // Previsión se pide aparte y no debe tumbar las notificaciones de ODS
+      // si falla (ej. sin credencial guardada todavía, o el colaborador no
+      // tiene acceso a contratos).
+      let pv = { atrasados: [], pagosMP: [] };
+      try { pv = await calcularPendientesPrevision(); } catch (pvErr) { /* se deja en ceros */ }
+
+      notifBadge.textContent = p.equipos.length + p.pagos.length + p.solicitudes.length + p.abonos.length + pv.atrasados.length + pv.pagosMP.length;
       if (!openAfter) return;
       let html = '';
+      html += notifGroup('💳 Servicios de Previsión atrasados', pv.atrasados.map(a => notifRow(a.folio, a.titular || '—', fmtMx(a.restante))), 'Sin pendientes.');
+      html += notifGroup('🏦 Pagos Mercado Pago sin confirmar', pv.pagosMP.map(a => notifRow(a.folio, 'Previsión', fmtMx(a.monto))), 'Sin pendientes.');
       html += notifGroup('📦 Equipos de velación sin recoger', p.equipos.map(e => notifRow(e.folio, e.fallecido || '—', e.dias === null ? 'sin fecha' : e.dias < 0 ? `<span class="warn">vencido ${-e.dias}d</span>` : e.dias === 0 ? 'hoy' : `en ${e.dias}d`)), 'Sin pendientes.');
-      html += notifGroup('💰 Órdenes con saldo pendiente', p.pagos.map(x => notifRow(x.folio, x.contratante || '—', fmtMx(x.restante))), 'Sin pendientes.');
+      html += notifGroup('💰 Órdenes ODS con saldo pendiente', p.pagos.map(x => notifRow(x.folio, x.contratante || '—', fmtMx(x.restante))), 'Sin pendientes.');
       html += notifGroup('✏️ Solicitudes de edición sin autorizar', p.solicitudes.map(s => notifRow(s.folio, s.empleadoNombre || '—', s.motivo || '—')), 'Sin pendientes.');
-      html += notifGroup('🧾 Abonos sin confirmar', p.abonos.map(a => notifRow(a.folio, a.cajero || '—', fmtMx(a.monto))), 'Sin pendientes.');
+      html += notifGroup('🧾 Abonos ODS sin confirmar', p.abonos.map(a => notifRow(a.folio, a.cajero || '—', fmtMx(a.monto))), 'Sin pendientes.');
       html += notifGroup('🕒 Horarios próximos (sepelio/cremación)', p.horarios.slice(0, 8).map(h => notifRow(h.folio, h.fallecido || '—', (h.fecha || '') + ' ' + (h.hora || ''))), 'Sin horarios programados.');
       html += `<div class="notif-group"><h4>📋 Órdenes ODS activas</h4><p class="notif-empty">${p.activas} orden(es) sin cerrar.</p></div>`;
       notifBody.innerHTML = html;
@@ -678,6 +747,7 @@
       const data = await validarAccesoRemoto({ pin });
       if (data && data.ok && data.colaborador) {
         setSession(data.colaborador);
+        setAuthCred({ pin });
         unlockPanel(data.colaborador);
         enterKiosk();
         registrarMovimiento('ingreso', 'Acceso con PIN');
@@ -724,6 +794,7 @@
       const data = await validarAccesoRemoto({ usuario, contrasena });
       if (data && data.ok && data.colaborador) {
         setSession(data.colaborador);
+        setAuthCred({ usuario, contrasena });
         unlockPanel(data.colaborador);
         enterKiosk();
         registrarMovimiento('ingreso', 'Acceso con usuario y contraseña');
@@ -740,6 +811,7 @@
   lockBtn.addEventListener('click', () => {
     registrarMovimiento('cierre_sesion', 'Bloqueo manual del panel');
     clearSession();
+    clearAuthCred();
     hideSessionChip();
     lockPanel();
   });
@@ -764,6 +836,7 @@
       idleTimer = setTimeout(() => {
         registrarMovimiento('bloqueo_automatico', AUTO_LOCK_MINUTES + ' min de inactividad');
         clearSession();
+        clearAuthCred();
         hideSessionChip();
         lockPanel();
       }, AUTO_LOCK_MINUTES * 60 * 1000);
