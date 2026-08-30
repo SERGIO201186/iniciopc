@@ -269,7 +269,7 @@
       </div>
       <div class="grid grid-3">
 
-        <a href="https://sergio201186.github.io/Prevision-app/" class="card card-lg jsopen" style="--accent:#3b82f6">
+        <a href="https://sergio201186.github.io/Prevision-app/" class="card card-lg jsopen" style="--accent:#3b82f6" data-sso="true">
           <div class="top-row">
             <div class="badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6l7-3z"/><path d="M9 12l2 2 4-4"/></svg></div>
             <span class="code">MOD.01</span>
@@ -279,7 +279,7 @@
           <div class="foot-row"><span class="pill ok"><span class="pd"></span>EN LINEA</span><span class="ext">↗</span></div>
         </a>
 
-        <a href="https://sergio201186.github.io/funeraria-huerta/" class="card card-lg jsopen" style="--accent:#3b82f6">
+        <a href="https://sergio201186.github.io/funeraria-huerta/" class="card card-lg jsopen" style="--accent:#3b82f6" data-sso="true">
           <div class="top-row">
             <div class="badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="12" height="17" rx="2"/><rect x="9" y="2.5" width="6" height="3" rx="1"/><path d="M9 12h6M9 15.5h6M9 8.5h3"/></svg></div>
             <span class="code">MOD.03</span>
@@ -501,9 +501,19 @@
   tick(); setInterval(tick, 1000 * 30);
 
   // ---------- abrir apps/tramites en ventana reducida, centrada y adaptada a la pantalla ----------
-  function openSized(e, url, label){
+  function openSized(e, url, label, sso){
     e.preventDefault();
     registrarMovimiento('abrir_modulo', label || url);
+    // Inicio de sesión único: si esta app comparte la misma base de
+    // empleados (ODS/Previsión) y el colaborador ya se autenticó aquí, se
+    // manda su credencial en la URL para que esa app entre sola, sin
+    // volver a pedir el PIN. Esas apps la leen una sola vez al abrir y la
+    // borran de la barra de direcciones — no queda guardada ahí.
+    const cred = sso ? getAuthCred() : null;
+    if (cred) {
+      const sep = url.indexOf('?') === -1 ? '?' : '&';
+      url = url + sep + 'omniaAuth=' + encodeURIComponent(JSON.stringify(cred));
+    }
     const sw = window.screen.availWidth, sh = window.screen.availHeight;
     const w = Math.round(sw * POPUP_WIDTH_RATIO);
     const h = Math.round(sh * POPUP_HEIGHT_RATIO);
@@ -517,7 +527,7 @@
   }
   document.querySelectorAll('a.jsopen').forEach(a => {
     const h3 = a.querySelector('h3');
-    a.addEventListener('click', (e) => openSized(e, a.getAttribute('href'), a.dataset.app || (h3 ? h3.textContent : '')));
+    a.addEventListener('click', (e) => openSized(e, a.getAttribute('href'), a.dataset.app || (h3 ? h3.textContent : ''), a.dataset.sso === 'true'));
   });
   document.querySelectorAll('.card[data-app]').forEach(a => {
     a.addEventListener('click', () => registrarMovimiento('abrir_modulo', a.dataset.app));
@@ -713,9 +723,19 @@
   let checkingAuth = false;
 
   function renderDots(){ [...dotsEl.children].forEach((d, i) => d.classList.toggle('filled', i < pin.length)); }
+  // Mismo criterio que usa el script compartido (_esPuestoAdmin) para decidir
+  // quién es Administrador: el puesto del colaborador es "ADMIN" o contiene
+  // "ADMINISTRADOR". Por ahora solo se detecta y se muestra — no se oculta
+  // ningún módulo todavía; eso se agrega en un paso aparte cuando se defina
+  // qué debe ver cada perfil.
+  function esAdmin(colaborador){
+    const p = String((colaborador && colaborador.puesto) || '').trim().toUpperCase();
+    return p === 'ADMIN' || p.indexOf('ADMINISTRADOR') !== -1;
+  }
   function showSessionChip(colaborador){
     sessionChip.style.display = 'inline-flex';
-    sessionChipName.textContent = (colaborador && (colaborador.nombre || colaborador.usuario)) || 'Colaborador';
+    const nombre = (colaborador && (colaborador.nombre || colaborador.usuario)) || 'Colaborador';
+    sessionChipName.textContent = esAdmin(colaborador) ? nombre + ' · ADMIN' : nombre;
   }
   function hideSessionChip(){ sessionChip.style.display = 'none'; sessionChipName.textContent = ''; }
 
