@@ -378,7 +378,8 @@
   // distinto del de arriba — ver Codigo.gs en este repositorio). Aqui se
   // guardan los movimientos (ingresos, aperturas de modulo, bloqueos) de
   // cada colaborador. Pega tu URL con el boton "Configurar conexión".
-  function getLogApiUrl(){ return localStorage.getItem('omnia_log_api_url') || ''; }
+  const LOG_API_URL_DEFAULT = "https://script.google.com/macros/s/AKfycbynOF54THYNMjH8d2K1SsMkacHYYsQtztQFC1l5FOkioh5w8GnTehBA_TDbHu0C7tWY/exec";
+  function getLogApiUrl(){ return localStorage.getItem('omnia_log_api_url') || LOG_API_URL_DEFAULT; }
 
   const AUTO_LOCK_MINUTES = 5;        // minutos de inactividad antes de auto-bloquear (0 = desactivado)
   const POPUP_WIDTH_RATIO = 0.82;     // tamano de la ventana emergente para apps/tramites externos
