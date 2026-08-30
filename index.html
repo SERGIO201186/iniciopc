@@ -675,6 +675,7 @@
       if (data && data.ok && data.colaborador) {
         setSession(data.colaborador);
         unlockPanel(data.colaborador);
+        enterKiosk();
         registrarMovimiento('ingreso', 'Acceso con PIN');
         refreshNotificaciones(false);
       } else {
@@ -720,6 +721,7 @@
       if (data && data.ok && data.colaborador) {
         setSession(data.colaborador);
         unlockPanel(data.colaborador);
+        enterKiosk();
         registrarMovimiento('ingreso', 'Acceso con usuario y contraseña');
         refreshNotificaciones(false);
         userPassForm.reset();
@@ -769,6 +771,26 @@
   // ---------- estado inicial: exige inicio de sesión real en cada apertura del panel ----------
   const existingSession = getSession();
   if (existingSession) { unlockPanel(existingSession); refreshNotificaciones(false); } else { lockPanel(); }
+
+  // ---------- modo launcher: refuerzos para que los empleados no se salgan a
+  // otras páginas o programas desde este panel. IMPORTANTE: esto por sí solo
+  // NO es un bloqueo real — una página web no puede impedir abrir otro
+  // programa ni (en navegadores modernos) atajos como Ctrl+T/Ctrl+N/Alt+Tab.
+  // El bloqueo de verdad se logra abriendo el navegador en MODO KIOSCO en
+  // esta PC (ver instrucciones aparte); esto de aquí solo suma capas extra
+  // dentro de la propia página (pantalla completa, sin clic derecho, sin
+  // atajos de herramientas de desarrollador).
+  function enterKiosk(){
+    const el = document.documentElement;
+    if (el.requestFullscreen) el.requestFullscreen().catch(() => {});
+  }
+  document.addEventListener('contextmenu', (e) => e.preventDefault());
+  document.addEventListener('keydown', (e) => {
+    const k = e.key.toLowerCase();
+    if (k === 'f12') { e.preventDefault(); return; }
+    if ((e.ctrlKey || e.metaKey) && e.shiftKey && (k === 'i' || k === 'j' || k === 'c')) { e.preventDefault(); return; }
+    if ((e.ctrlKey || e.metaKey) && k === 'u') { e.preventDefault(); return; }
+  });
 
   window.addEventListener('beforeunload', (e) => { e.preventDefault(); e.returnValue = ''; });
 
