@@ -71,6 +71,13 @@
   }
   #lockBtn:hover{color:var(--text-1); border-color:rgba(255,255,255,.25); background:rgba(255,255,255,.1);}
   #lockBtn svg{width:12px; height:12px;}
+  #chromeBtn{
+    display:none; align-items:center; gap:6px; font-family:'JetBrains Mono',monospace; font-size:11px;
+    letter-spacing:.5px; color:var(--text-2); background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.12);
+    padding:7px 12px; border-radius:8px; cursor:pointer; font-weight:600;
+  }
+  #chromeBtn:hover{color:var(--text-1); border-color:rgba(255,255,255,.25); background:rgba(255,255,255,.1);}
+  #chromeBtn svg{width:14px; height:14px;}
 
   /* ---------- content: two columns ---------- */
   .content{flex:1; min-height:0; display:block; padding-top:16px;}
@@ -232,6 +239,10 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M5 19h14"/></svg>
         INSTALAR
       </button>
+      <button id="chromeBtn" type="button" title="Abrir navegador libre (solo administrador)">
+        <svg viewBox="0 0 48 48" width="14" height="14"><circle cx="24" cy="24" r="20" fill="#fff"/><path fill="#EA4335" d="M24 4a20 20 0 0 1 17.32 10H24a10 10 0 0 0-8.66 5L6.68 9.1A20 20 0 0 1 24 4z"/><path fill="#FBBC05" d="M41.32 14A20 20 0 0 1 32.7 41.6L24 24l-.06-.1A10 10 0 0 0 27 12.1z"/><path fill="#34A853" d="M6.68 9.1l8.66 15A10 10 0 0 0 24 34l-8.68 15A20 20 0 0 1 6.68 9.1z"/><circle cx="24" cy="24" r="8" fill="#fff"/><circle cx="24" cy="24" r="6.4" fill="#4285F4"/></svg>
+        NAVEGADOR
+      </button>
       <button id="lockBtn" type="button" title="Bloquear panel (requiere PIN para reabrir)">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
         BLOQUEAR
@@ -258,7 +269,7 @@
           </div>
         </div>
 
-        <div class="card card-sm" style="--accent:#fbbf24">
+        <div class="card card-sm" id="cardNovapos" style="--accent:#fbbf24; display:none">
           <div class="top-row">
             <div class="badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2.5 3h2.4l2.6 12.2a2 2 0 0 0 2 1.6h7.6a2 2 0 0 0 2-1.6L21 7H6"/></svg></div>
             <span class="code">WEB</span>
@@ -793,6 +804,22 @@
     const p = String((colaborador && colaborador.puesto) || '').trim().toUpperCase();
     return p === 'ADMIN' || p.indexOf('ADMINISTRADOR') !== -1;
   }
+  // Elementos exclusivos del perfil Administrador de Sergio Armando Cadena
+  // Huerta (NovaPOS de la caseta, navegador libre): ocultos para cualquier
+  // otro colaborador, incluso otros administradores.
+  const cardNovapos = document.getElementById('cardNovapos');
+  const chromeBtn = document.getElementById('chromeBtn');
+  function normalizarNombre(s){
+    return String(s || '').trim().toUpperCase().replace(/\s+/g, ' ');
+  }
+  function esAdminAutorizado(colaborador){
+    return esAdmin(colaborador) && normalizarNombre(colaborador && colaborador.nombre) === 'SERGIO ARMANDO CADENA HUERTA';
+  }
+  function actualizarVisibilidadAdminExclusivo(colaborador){
+    const visible = esAdminAutorizado(colaborador);
+    cardNovapos.style.display = visible ? '' : 'none';
+    chromeBtn.style.display = visible ? 'inline-flex' : 'none';
+  }
   function showSessionChip(colaborador){
     sessionChip.style.display = 'inline-flex';
     const nombre = (colaborador && (colaborador.nombre || colaborador.usuario)) || 'Colaborador';
@@ -803,10 +830,12 @@
   function lockPanel(){
     pin=''; renderDots(); errEl.textContent='';
     overlay.classList.remove('mode-user'); overlay.classList.add('active');
+    actualizarVisibilidadAdminExclusivo(null);
   }
   function unlockPanel(colaborador){
     overlay.classList.remove('active'); pin=''; renderDots(); errEl.textContent='';
     showSessionChip(colaborador);
+    actualizarVisibilidadAdminExclusivo(colaborador);
   }
 
   // Valida PIN o usuario+contraseña contra la MISMA base de empleados que ya
@@ -895,6 +924,16 @@
     clearAuthCred();
     hideSessionChip();
     lockPanel();
+  });
+
+  // Navegador libre: a diferencia de openSized() (sin barra de direcciones,
+  // para restringir a los empleados a solo estas apps), esta ventana se abre
+  // sin restricciones — con barra de direcciones — para que el administrador
+  // pueda navegar a cualquier sitio. El botón mismo ya está oculto para
+  // cualquier perfil que no sea el administrador autorizado.
+  chromeBtn.addEventListener('click', () => {
+    registrarMovimiento('abrir_navegador_libre', 'Chrome');
+    window.open('https://www.google.com', '_blank');
   });
 
   configBtn.addEventListener('click', () => {
